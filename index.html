@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java Learning Progress Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .progress-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+
+        .progress-text {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .input-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .task-input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .task-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .add-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+
+        .add-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .tasks-section {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 5px;
+        }
+
+        .task-list {
+            list-style: none;
+        }
+
+        .task-item {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .task-item:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .task-item.completed {
+            background: #f8f9fa;
+            border-color: #28a745;
+        }
+
+        .task-text {
+            flex: 1;
+            font-size: 1rem;
+            color: #333;
+        }
+
+        .task-item.completed .task-text {
+            text-decoration: line-through;
+            color: #666;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .complete-btn {
+            background: #28a745;
+            color: white;
+        }
+
+        .complete-btn:hover {
+            background: #218838;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background: #c82333;
+        }
+
+        .undo-btn {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .undo-btn:hover {
+            background: #e0a800;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            padding: 40px 20px;
+        }
+
+        .clear-completed-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        .clear-completed-btn:hover {
+            background: #5a6268;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            .input-section {
+                flex-direction: column;
+            }
+
+            .stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .task-actions {
+                flex-direction: column;
+                gap: 5px;
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        .undo-notification {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .undo-notification button:hover {
+            background: rgba(255, 255, 255, 0.3) !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 Java Learning Tracker</h1>
+            <p>Track your progress through the 12-hour Java tutorial</p>
+        </div>
+
+        <div class="progress-section">
+            <div class="progress-text">Overall Progress</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div id="progressPercentage">0%</div>
+            
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-number" id="totalTasks">0</div>
+                    <div class="stat-label">Total Topics</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" id="completedTasks">0</div>
+                    <div class="stat-label">Completed</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" id="remainingTasks">0</div>
+                    <div class="stat-label">Remaining</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="input-section">
+            <input type="text" class="task-input" id="taskInput" placeholder="Add a new topic/chapter to learn (e.g., 'Variables and Data Types - 30 minutes')">
+            <button class="add-btn" onclick="addTask()">Add Topic</button>
+        </div>
+
+        <div class="tasks-section">
+            <h3 class="section-title">📝 To Learn</h3>
+            <ul class="task-list" id="pendingTasks">
+                <div class="empty-state">No topics added yet. Start by adding your first learning topic!</div>
+            </ul>
+        </div>
+
+        <div class="tasks-section">
+            <h3 class="section-title">✅ Completed</h3>
+            <ul class="task-list" id="completedTasks">
+                <div class="empty-state">No completed topics yet. Keep learning!</div>
+            </ul>
+            <button class="clear-completed-btn" onclick="clearCompleted()" style="display: none;" id="clearBtn">Clear All Completed</button>
+        </div>
+
+        <div class="tasks-section">
+            <h3 class="section-title">💾 Data Management</h3>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px;">
+                <button class="btn" style="background: #6f42c1; color: white;" onclick="loadJavaTopics()">Load Java Tutorial (71 Topics)</button>
+                <button class="btn" style="background: #fd7e14; color: white;" onclick="undoLastCompleted()">Undo Last Completed</button>
+                <button class="btn" style="background: #17a2b8; color: white;" onclick="exportData()">Export Data</button>
+                <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData()">
+                <button class="btn" style="background: #28a745; color: white;" onclick="document.getElementById('importFile').click()">Import Data</button>
+                <button class="btn" style="background: #ffc107; color: #212529;" onclick="showStorageInfo()">Storage Info</button>
+                <button class="btn" style="background: #dc3545; color: white;" onclick="clearAllData()">Clear All Data</button>
+            </div>
+            <div id="storageInfo" style="font-size: 0.9rem; color: #666; margin-top: 10px;"></div>
+        </div>
+    </div>
+
+    <script>
+        let tasks = [];
+        let taskIdCounter = 1;
+
+        // Load tasks from localStorage on page load
+        window.onload = function() {
+            loadTasks();
+            updateDisplay();
+            console.log('Tasks loaded:', tasks); // Debug log
+        };
+
+        // Also load when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTasks();
+            updateDisplay();
+        });
+
+        function loadTasks() {
+            try {
+                const savedTasks = localStorage.getItem('javaLearningTasks');
+                console.log('Loaded from localStorage:', savedTasks); // Debug log
+                if (savedTasks && savedTasks !== 'null') {
+                    const parsedTasks = JSON.parse(savedTasks);
+                    if (Array.isArray(parsedTasks)) {
+                        tasks = parsedTasks;
+                        taskIdCounter = tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) + 1 : 1;
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading tasks:', error);
+                // If there's an error, start fresh
+                tasks = [];
+                taskIdCounter = 1;
+            }
+        }
+
+        function saveTasks() {
+            try {
+                localStorage.setItem('javaLearningTasks', JSON.stringify(tasks));
+                console.log('Tasks saved:', tasks); // Debug log
+            } catch (error) {
+                console.error('Error saving tasks:', error);
+                alert('Unable to save your progress. Please check if your browser allows local storage.');
+            }
+        }
+
+        function addTask() {
+            const input = document.getElementById('taskInput');
+            const text = input.value.trim();
+            
+            if (text === '') {
+                alert('Please enter a topic to learn!');
+                return;
+            }
+
+            const newTask = {
+                id: taskIdCounter++,
+                text: text,
+                completed: false,
+                createdAt: new Date().toISOString()
+            };
+
+            tasks.push(newTask);
+            input.value = '';
+            saveTasks();
+            updateDisplay();
+        }
+
+        function completeTask(id) {
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                task.completed = true;
+                task.completedAt = new Date().toISOString();
+                saveTasks();
+                updateDisplay();
+                
+                // Show temporary undo notification
+                showUndoNotification(task);
+            }
+        }
+
+        function undoTask(id) {
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                task.completed = false;
+                delete task.completedAt;
+                saveTasks();
+                updateDisplay();
+                
+                // Remove any existing undo notifications for this task
+                const existingNotification = document.querySelector(`[data-task-id="${id}"]`);
+                if (existingNotification) {
+                    existingNotification.remove();
+                }
+            }
+        }
+
+        function showUndoNotification(task) {
+            // Remove any existing notifications
+            const existingNotifications = document.querySelectorAll('.undo-notification');
+            existingNotifications.forEach(notification => notification.remove());
+
+            // Create undo notification
+            const notification = document.createElement('div');
+            notification.className = 'undo-notification';
+            notification.setAttribute('data-task-id', task.id);
+            notification.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: #28a745;
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+                z-index: 1000;
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                max-width: 400px;
+                animation: slideIn 0.3s ease;
+            `;
+
+            notification.innerHTML = `
+                <div>
+                    <strong>✅ Task Completed!</strong><br>
+                    <span style="font-size: 0.9em; opacity: 0.9;">${task.text.length > 50 ? task.text.substring(0, 50) + '...' : task.text}</span>
+                </div>
+                <button onclick="undoFromNotification(${task.id})" style="
+                    background: rgba(255, 255, 255, 0.2);
+                    border: 1px solid rgba(255, 255, 255, 0.3);
+                    color: white;
+                    padding: 8px 12px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-size: 0.9em;
+                    white-space: nowrap;
+                ">UNDO</button>
+            `;
+
+            document.body.appendChild(notification);
+
+            // Auto-remove after 10 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.style.animation = 'slideOut 0.3s ease';
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.remove();
+                        }
+                    }, 300);
+                }
+            }, 10000);
+        }
+
+        function undoFromNotification(id) {
+            undoTask(id);
+            const notification = document.querySelector(`[data-task-id="${id}"]`);
+            if (notification) {
+                notification.remove();
+            }
+        }
+
+        function undoLastCompleted() {
+            const completedTasks = tasks.filter(t => t.completed);
+            if (completedTasks.length === 0) {
+                alert('No completed tasks to undo!');
+                return;
+            }
+
+            // Find the most recently completed task
+            const lastCompleted = completedTasks.reduce((latest, current) => {
+                const latestTime = new Date(latest.completedAt || latest.createdAt);
+                const currentTime = new Date(current.completedAt || current.createdAt);
+                return currentTime > latestTime ? current : latest;
+            });
+
+            if (confirm(`Undo completion of: "${lastCompleted.text.length > 60 ? lastCompleted.text.substring(0, 60) + '...' : lastCompleted.text}"?`)) {
+                undoTask(lastCompleted.id);
+                alert('Task moved back to pending list! ↩️');
+            }
+        }
+
+        function deleteTask(id) {
+            if (confirm('Are you sure you want to delete this topic?')) {
+                tasks = tasks.filter(t => t.id !== id);
+                saveTasks();
+                updateDisplay();
+            }
+        }
+
+        function clearCompleted() {
+            if (confirm('Are you sure you want to clear all completed topics?')) {
+                tasks = tasks.filter(t => !t.completed);
+                saveTasks();
+                updateDisplay();
+            }
+        }
+
+        function updateDisplay() {
+            updateProgress();
+            updatePendingTasks();
+            updateCompletedTasks();
+        }
+
+        function updateProgress() {
+            const total = tasks.length;
+            const completed = tasks.filter(t => t.completed).length;
+            const remaining = total - completed;
+            const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+            document.getElementById('totalTasks').textContent = total;
+            document.getElementById('completedTasks').textContent = completed;
+            document.getElementById('remainingTasks').textContent = remaining;
+            document.getElementById('progressPercentage').textContent = percentage + '%';
+            document.getElementById('progressFill').style.width = percentage + '%';
+        }
+
+        function updatePendingTasks() {
+            const pendingTasksList = document.getElementById('pendingTasks');
+            const pendingTasks = tasks.filter(t => !t.completed);
+
+            if (pendingTasks.length === 0) {
+                pendingTasksList.innerHTML = '<div class="empty-state">All topics completed! Great job! 🎉</div>';
+                return;
+            }
+
+            pendingTasksList.innerHTML = '';
+            pendingTasks.forEach(task => {
+                const li = document.createElement('li');
+                li.className = 'task-item';
+                li.innerHTML = `
+                    <span class="task-text">${task.text}</span>
+                    <div class="task-actions">
+                        <button class="btn complete-btn" onclick="completeTask(${task.id})">Complete</button>
+                        <button class="btn delete-btn" onclick="deleteTask(${task.id})">Delete</button>
+                    </div>
+                `;
+                pendingTasksList.appendChild(li);
+            });
+        }
+
+        function updateCompletedTasks() {
+            const completedTasksList = document.getElementById('completedTasks');
+            const completedTasks = tasks.filter(t => t.completed);
+            const clearBtn = document.getElementById('clearBtn');
+
+            if (completedTasks.length === 0) {
+                completedTasksList.innerHTML = '<div class="empty-state">No completed topics yet. Keep learning!</div>';
+                clearBtn.style.display = 'none';
+                return;
+            }
+
+            clearBtn.style.display = 'block';
+            completedTasksList.innerHTML = '';
+            completedTasks.forEach(task => {
+                const li = document.createElement('li');
+                li.className = 'task-item completed';
+                li.innerHTML = `
+                    <span class="task-text">${task.text}</span>
+                    <div class="task-actions">
+                        <button class="btn undo-btn" onclick="undoTask(${task.id})">Undo</button>
+                        <button class="btn delete-btn" onclick="deleteTask(${task.id})">Delete</button>
+                    </div>
+                `;
+                completedTasksList.appendChild(li);
+            });
+        }
+
+        // Allow adding tasks with Enter key
+        document.getElementById('taskInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addTask();
+            }
+        });
+
+        // Data management functions
+        function exportData() {
+            const dataStr = JSON.stringify(tasks, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `java-learning-progress-${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+            alert('Data exported successfully!');
+        }
+
+        function importData() {
+            const fileInput = document.getElementById('importFile');
+            const file = fileInput.files[0];
+            
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedTasks = JSON.parse(e.target.result);
+                    if (Array.isArray(importedTasks)) {
+                        if (confirm('This will replace all current data. Continue?')) {
+                            tasks = importedTasks;
+                            taskIdCounter = tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) + 1 : 1;
+                            saveTasks();
+                            updateDisplay();
+                            alert('Data imported successfully!');
+                        }
+                    } else {
+                        alert('Invalid file format!');
+                    }
+                } catch (error) {
+                    alert('Error reading file: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+            fileInput.value = ''; // Clear the input
+        }
+
+        function showStorageInfo() {
+            const data = localStorage.getItem('javaLearningTasks');
+            const size = data ? new Blob([data]).size : 0;
+            const info = `
+                Current data size: ${size} bytes
+                Total tasks: ${tasks.length}
+                Completed: ${tasks.filter(t => t.completed).length}
+                Browser: ${navigator.userAgent.split(' ')[0]}
+            `;
+            document.getElementById('storageInfo').innerHTML = info.replace(/\n/g, '<br>');
+        }
+
+        function clearAllData() {
+            if (confirm('Are you sure you want to delete ALL data? This cannot be undone!')) {
+                if (confirm('Last chance - this will permanently delete everything!')) {
+                    tasks = [];
+                    taskIdCounter = 1;
+                    localStorage.removeItem('javaLearningTasks');
+                    updateDisplay();
+                    alert('All data cleared!');
+                }
+            }
+        }
+
+        // Auto-load Java tutorial topics
+        function loadJavaTopics() {
+            const topics = [
+                {time: "00:00:00", title: "introduction to java ☕"},
+                {time: "00:10:58", title: "variables ❎"},
+                {time: "00:31:30", title: "user input ⌨️"},
+                {time: "00:47:25", title: "⭐ mad libs game 📕"},
+                {time: "00:54:08", title: "arithmetic 🧮"},
+                {time: "01:02:29", title: "⭐ shopping cart program 🛒"},
+                {time: "01:09:00", title: "if statements 🤔"},
+                {time: "01:22:28", title: "random numbers 🔀"},
+                {time: "01:27:28", title: "math class 📐"},
+                {time: "01:42:37", title: "printf 🖨️"},
+                {time: "01:56:14", title: "⭐ compound interest calculator 💸"},
+                {time: "02:03:47", title: "nested if statements 🎟️"},
+                {time: "02:10:20", title: "string methods 🧵"},
+                {time: "02:18:55", title: "substrings 📧"},
+                {time: "02:27:00", title: "⭐ weight converter 🏋️"},
+                {time: "02:35:19", title: "ternary operator ❔"},
+                {time: "02:41:10", title: "⭐ temperature converter 🌡️"},
+                {time: "02:49:05", title: "enhanced switches 💡"},
+                {time: "02:57:42", title: "⭐ calculator program 🖩"},
+                {time: "03:09:58", title: "logical operators ❕"},
+                {time: "03:21:23", title: "while loops ♾️"},
+                {time: "03:33:47", title: "⭐ number guessing game 🔢"},
+                {time: "03:43:33", title: "for loops 🔂"},
+                {time: "03:53:33", title: "break & continue 🚦"},
+                {time: "03:55:45", title: "nested loops ➿"},
+                {time: "04:04:27", title: "methods 📞"},
+                {time: "04:19:51", title: "overloaded methods 🍕"},
+                {time: "04:25:59", title: "variable scope 🏠"},
+                {time: "04:30:57", title: "⭐ banking program 💰"},
+                {time: "04:51:26", title: "⭐ dice roller program 🎲"},
+                {time: "05:03:26", title: "arrays 🍎"},
+                {time: "05:12:35", title: "enter user input into an array ➡️"},
+                {time: "05:20:38", title: "search an array 🔎"},
+                {time: "05:28:07", title: "varargs 💬"},
+                {time: "05:34:36", title: "2d arrays ⬜"},
+                {time: "05:44:13", title: "⭐ quiz game 💯"},
+                {time: "05:59:14", title: "⭐ rock paper scissors 🗿"},
+                {time: "06:15:02", title: "⭐ slot machine 🎰"},
+                {time: "06:41:47", title: "object-oriented programming 🧱"},
+                {time: "06:51:38", title: "constructors 🔨"},
+                {time: "07:01:45", title: "overloaded constructors 🛠️"},
+                {time: "07:08:22", title: "array of objects 🗃️"},
+                {time: "07:14:07", title: "static 🤝"},
+                {time: "07:22:04", title: "inheritance 👨‍👧‍👦"},
+                {time: "07:31:09", title: "super 🔝"},
+                {time: "07:41:37", title: "method overriding ♻️"},
+                {time: "07:46:08", title: "tostring method 🎉"},
+                {time: "07:51:58", title: "abstraction 🌫️"},
+                {time: "08:01:30", title: "interfaces 📋"},
+                {time: "08:07:44", title: "polymorphism 🎭"},
+                {time: "08:14:27", title: "runtime polymorphism 🤷‍♂️"},
+                {time: "08:19:35", title: "getters and setters 🔐"},
+                {time: "08:29:39", title: "aggregation 🏫"},
+                {time: "08:39:02", title: "composition ⚙️"},
+                {time: "08:45:17", title: "wrapper classes 🎁"},
+                {time: "08:55:51", title: "arraylists 📃"},
+                {time: "09:05:29", title: "exception handling ⚠️"},
+                {time: "09:13:28", title: "write files ✍"},
+                {time: "09:21:58", title: "read files 📖"},
+                {time: "09:28:50", title: "⭐ music player 🎼"},
+                {time: "09:43:10", title: "⭐ hangman game 🕺"},
+                {time: "10:11:42", title: "dates & times 📆"},
+                {time: "10:20:24", title: "anonymous classes 🕵️‍♂️"},
+                {time: "10:25:23", title: "timertasks ⏲️"},
+                {time: "10:31:45", title: "⭐ countdown timer ⏳"},
+                {time: "10:38:16", title: "generics 📦"},
+                {time: "10:52:09", title: "hashmaps 🗺️"},
+                {time: "11:02:38", title: "enums 📅"},
+                {time: "11:12:45", title: "threading 🧵"},
+                {time: "11:23:04", title: "multithreading 🧶"},
+                {time: "11:31:02", title: "⭐ alarm clock ⏰"}
+            ];
+
+            function timeToSeconds(timeStr) {
+                const parts = timeStr.split(':').map(Number);
+                return parts[0] * 3600 + parts[1] * 60 + parts[2];
+            }
+
+            function secondsToMinutes(seconds) {
+                const minutes = Math.round(seconds / 60);
+                return minutes === 1 ? "1 min" : `${minutes} mins`;
+            }
+
+            // Calculate durations and create tasks
+            const newTasks = [];
+            for (let i = 0; i < topics.length; i++) {
+                const currentTopic = topics[i];
+                const nextTopic = topics[i + 1];
+                
+                let duration;
+                if (nextTopic) {
+                    const currentSeconds = timeToSeconds(currentTopic.time);
+                    const nextSeconds = timeToSeconds(nextTopic.time);
+                    const durationSeconds = nextSeconds - currentSeconds;
+                    duration = secondsToMinutes(durationSeconds);
+                } else {
+                    // Last topic, estimate remaining time (total is about 11.5 hours)
+                    const currentSeconds = timeToSeconds(currentTopic.time);
+                    const totalSeconds = 11.5 * 3600; // 11.5 hours
+                    const durationSeconds = totalSeconds - currentSeconds;
+                    duration = secondsToMinutes(durationSeconds);
+                }
+
+                const taskText = `#${i + 1} ${currentTopic.title} (${duration})`;
+                
+                newTasks.push({
+                    id: taskIdCounter++,
+                    text: taskText,
+                    completed: false,
+                    createdAt: new Date().toISOString()
+                });
+            }
+
+            // Add all tasks
+            if (confirm(`This will add ${newTasks.length} Java tutorial topics to your list. Continue?`)) {
+                tasks = tasks.concat(newTasks);
+                saveTasks();
+                updateDisplay();
+                alert(`Added ${newTasks.length} Java tutorial topics successfully! 🎉`);
+            }
+        }
+    </script>
+</body>
+</html>
