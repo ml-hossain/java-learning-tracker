@@ -4,7 +4,7 @@ A beautiful, interactive web application to track your progress through Java tut
 
 ## 🌟 Live Demo
 
-Visit the live application: [Java Learning Tracker](https://yourusername.github.io/java-learning-tracker)
+Visit the live application: [Java Learning Tracker](https://ml-hossain.github.io/java-learning-tracker)
 
 ## ✨ Features
 

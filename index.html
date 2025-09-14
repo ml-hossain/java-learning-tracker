@@ -285,10 +285,6 @@
             }
         }
 
-        .undo-notification {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
         .undo-notification button:hover {
             background: rgba(255, 255, 255, 0.3) !important;
         }
@@ -367,7 +363,6 @@
         window.onload = function() {
             loadTasks();
             updateDisplay();
-            console.log('Tasks loaded:', tasks); // Debug log
         };
 
         // Also load when DOM is ready
@@ -379,7 +374,6 @@
         function loadTasks() {
             try {
                 const savedTasks = localStorage.getItem('javaLearningTasks');
-                console.log('Loaded from localStorage:', savedTasks); // Debug log
                 if (savedTasks && savedTasks !== 'null') {
                     const parsedTasks = JSON.parse(savedTasks);
                     if (Array.isArray(parsedTasks)) {
@@ -398,7 +392,6 @@
         function saveTasks() {
             try {
                 localStorage.setItem('javaLearningTasks', JSON.stringify(tasks));
-                console.log('Tasks saved:', tasks); // Debug log
             } catch (error) {
                 console.error('Error saving tasks:', error);
                 alert('Unable to save your progress. Please check if your browser allows local storage.');
